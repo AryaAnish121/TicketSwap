@@ -43,7 +43,7 @@ const sendMessage = (message) => {
   });
 };
 
-const main = () => {
+const main = async () => {
   const LOGIN_URL = process.env.LOGIN_URL;
   if (!LOGIN_URL) {
     return console.log('No LOGIN_URL was provided');
