@@ -44,62 +44,62 @@ const sendMessage = (message) => {
 };
 
 const main = () => {
-  return new Promise(async (resolve, reject) => {
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox', '--start-maximized'],
-    });
-    const page = await browser.newPage();
-    await page.setDefaultNavigationTimeout(0);
-    await page.setViewport({
-      width: 1600,
-      height: 900,
-    });
-    await page.goto(process.env.LOGIN_URL);
-    await page.waitForNavigation();
-    await page.waitForTimeout(1000);
-    await page.goto(
-      'https://www.ticketswap.com/event/wicked-the-musical/recurring-monthly-april-tickets/baf8e418-64cf-42ae-b31f-c73a2056e9ca/1986747'
-    );
-    const interval = setInterval(async () => {
-      console.log('trying...');
-      try {
-        await page.reload();
-      } catch (error) {}
-      const url = await page.evaluate(() => {
-        const tickets = document.querySelectorAll('.e6fq7ah6');
-        if (tickets.length !== 0) {
-          const url = document.querySelector('.e6fq7ah6 > a').href;
-          return url;
-        }
-      });
-      if (url) {
-        clearInterval(interval);
-        await page.goto(url);
-        try {
-          await page.waitForTimeout(2000);
-          await page.evaluate(() => {
-            const increaseButton = document.querySelector(
-              'button[data-testid=increase-qty]'
-            );
-            if (increaseButton) {
-              increaseButton.click();
-              return;
-            }
-          });
-          await page.waitForTimeout(1000);
-          await page.waitForSelector('.e1nefpxg2 > .e1dvqv261');
-          await page.click('.e1nefpxg2 > .e1dvqv261');
-          await page.waitForTimeout(4000);
-          await sendMessage('Bought tickets');
-          await browser.close();
-          console.log('Done');
-        } catch (error) {
-          console.log('problem');
-        }
-      }
-    }, 3000);
+  const LOGIN_URL = process.env.LOGIN_URL;
+  if (!LOGIN_URL) {
+    return console.log('No LOGIN_URL was provided');
+  }
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--start-maximized'],
   });
+  const page = await browser.newPage();
+  await page.setDefaultNavigationTimeout(0);
+  await page.setViewport({
+    width: 1600,
+    height: 900,
+  });
+  await page.goto(LOGIN_URL);
+  await page.waitForNavigation();
+  await page.waitForTimeout(1000);
+  await page.goto(process.env.EVENT);
+  const interval = setInterval(async () => {
+    console.log('trying...');
+    try {
+      await page.reload();
+    } catch (error) {}
+    const url = await page.evaluate(() => {
+      const tickets = document.querySelectorAll('.e6fq7ah6');
+      if (tickets.length !== 0) {
+        const url = document.querySelector('.e6fq7ah6 > a').href;
+        return url;
+      }
+    });
+    if (url) {
+      clearInterval(interval);
+      await page.goto(url);
+      try {
+        await page.waitForTimeout(2000);
+        await page.evaluate(() => {
+          const increaseButton = document.querySelector(
+            'button[data-testid=increase-qty]'
+          );
+          if (increaseButton) {
+            increaseButton.click();
+            return;
+          }
+        });
+        await page.waitForTimeout(1000);
+        await page.waitForSelector('.e1nefpxg2 > .e1dvqv261');
+        await page.click('.e1nefpxg2 > .e1dvqv261');
+        await page.waitForTimeout(4000);
+        await sendMessage('Bought tickets');
+        await browser.close();
+        console.log('Done');
+      } catch (error) {
+        console.log('problem');
+      }
+    }
+  }, 3000);
 };
 
 main();
