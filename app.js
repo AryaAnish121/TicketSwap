@@ -57,7 +57,7 @@ const main = async () => {
   // create a browser
 
   const browser = await puppeteer.launch({
-    headless: false,
+    headless: true,
     args: ['--no-sandbox', '--disable-setuid-sandbox', '--start-maximized'],
   });
   const page = await browser.newPage();
