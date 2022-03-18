@@ -67,23 +67,32 @@ const main = async () => {
 
     try {
       await page.reload();
+      await page.waitForNavigation();
     } catch (error) {
-      console.log('another problem');
+      console.log('problem 1');
     }
 
     // get the link for the first ticket
 
-    const url = await page.evaluate(() => {
-      const tickets = document.querySelectorAll('.e6fq7ah6');
-      if (tickets.length !== 0) {
-        const url = document.querySelector('.e6fq7ah6 > a').href;
-        return url;
-      }
-    });
+    var url;
+
+    try {
+      const ticketUrl = await page.evaluate(() => {
+        const tickets = document.querySelectorAll('.e6fq7ah6');
+        if (tickets.length !== 0) {
+          const url = document.querySelector('.e6fq7ah6 > a').href;
+          return url;
+        }
+      });
+      url = ticketUrl;
+    } catch (error) {
+      console.log('problem 2');
+    }
 
     // if there are is ticket available buy it
 
     if (url) {
+      console.log('A ticket is available!! Buying it');
       buyingTickets = true;
 
       // cancel upcomming intervals
@@ -111,7 +120,7 @@ const main = async () => {
         await browser.close();
         console.log('Done');
       } catch (error) {
-        console.log('problem');
+        console.log('problem 3');
       }
     }
   };
